@@ -24,16 +24,32 @@ import '@/permission' // permission control
  * please remove it before going online ! ! !
  */
 if (process.env.NODE_ENV === 'production') {
-  const { mockXHR } = require('../mock')
+  const {
+    mockXHR
+  } = require('../mock')
   mockXHR()
 }
 
 // set ElementUI lang to EN
-Vue.use(ElementUI, { locale })
+Vue.use(ElementUI, {
+  locale
+})
 // 如果想要中文版 element-ui，按如下方式声明
 // Vue.use(ElementUI)
 
 Vue.config.productionTip = false
+
+
+
+
+// 将API注册为全局属性
+import API from './api/index'
+Vue.prototype.$API = API
+
+
+// 将CategorySelect注册为全局组件
+import CategorySelect from '@/components/CategorySelect'
+Vue.component(CategorySelect.name,CategorySelect)
 
 new Vue({
   el: '#app',

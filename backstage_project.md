@@ -29,4 +29,17 @@ component:Layout
 
 
 ### 商品管理/平台属性管理静态组件搭建
+el-pagination居中：
+```js
+style="text-align:center"
+```
 
+
+### 平台属性管理
+将三级联动设置为全局组件：
+CategorySelect：
+```js
+// 将CategorySelect注册为全局组件
+import CategorySelect from '@/components/CategorySelect'
+Vue.component(CategorySelect.name,CategorySelect)
+```
