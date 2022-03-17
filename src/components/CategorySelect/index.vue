@@ -7,6 +7,7 @@
           v-model="cForm.category1Id"
           class="select"
           @change="handler1"
+          :disabled="show"
         >
           <el-option
             :value="category1.id"
@@ -23,6 +24,7 @@
           v-model="cForm.category2Id"
           class="select"
           @change="handler2"
+          :disabled="show"
         >
           <el-option
             :value="category2.id"
@@ -39,6 +41,7 @@
           v-model="cForm.category3Id"
           class="select"
           @change="handler3"
+          :disabled="show"
         >
           <el-option
             :value="category3.id"
@@ -55,6 +58,7 @@
 <script>
 export default {
   name: "CategorySelect",
+  props:['show'],
   data() {
     return {
       select: "",
