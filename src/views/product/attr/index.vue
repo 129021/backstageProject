@@ -2,7 +2,7 @@
   <div class="attr">
     <!-- 三级联动所在卡片 -->
     <el-card class="card">
-      <CategorySelect></CategorySelect>
+      <CategorySelect @getCategory="getCategory"></CategorySelect>
     </el-card>
 
     <!-- 下部表格所在卡片 -->
@@ -92,8 +92,27 @@ export default {
   name: "Attr",
   data() {
     return {
-      scene: false,
+      scene: true,
+
+      // 三级分类列表的id
+      category1Id: "",
+      category2Id: "",
     };
+  },
+
+  methods: {
+    // 获取三级联动数据
+    // 这里的两个参数一定要加大括号
+    getCategory({id, level}) {
+      // console.log("获取三级联动分类");
+      if (level == 1) {
+        console.log("获取到了一级分类id");
+      } else if (level == 2) {
+        console.log("获取到了二级分类id");
+      } else {
+        console.log("获取到了三级分类id");
+      }
+    },
   },
 };
 </script>
