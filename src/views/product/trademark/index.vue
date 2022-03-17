@@ -88,9 +88,16 @@
           <el-upload
             class="avatar-uploader"
             action="/dev-api/admin/product/fileUpload/"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
           >
+            
             <img v-if="tmForm.logoUrl" :src="tmForm.logoUrl" class="avatar" />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            <div class="el-upload__tip" slot="tip">
+              只能上传jpg/png文件，且不超过500kb
+            </div>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -190,7 +197,7 @@ export default {
 
     // 添加品牌logo的方法
     handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw);
+      this.tmForm.logoUrl = URL.createObjectURL(file.raw);
     },
     beforeAvatarUpload(file) {
       const isJPG = file.type === "image/jpeg";
@@ -207,14 +214,13 @@ export default {
 
     // 添加或者修改trademark
     async addOrUpdateTrademark() {
-     
       this.dialogFormVisible = true;
       let res = await this.$API.trademark.reqAddOrUpdateTrademark(this.tmForm);
       // console.log(res);
       if (res.code == 200) {
         this.$message({
           type: "success",
-          message: this.tmForm.id?'修改成功':'添加成功',
+          message: this.tmForm.id ? "修改成功" : "添加成功",
         });
         this.getBaseTradeMark();
         this.tmForm = {};
