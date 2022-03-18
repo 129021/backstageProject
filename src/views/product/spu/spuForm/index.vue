@@ -1,5 +1,6 @@
 <template>
   <div id="spuForm" class="spuForm">
+    <!-- 这里的:model是收集数据，将数据收集到spu身上 -->
     <el-form ref="form" label-width="80px" :model="spu">
       <el-form-item label="SPU名称">
         <el-input v-model="spu.spuName"></el-input>
@@ -7,6 +8,7 @@
 
       <el-form-item label="品牌">
         <el-select placeholder="请选择品牌" value="" v-model="spu.tmId">
+          <!-- value是要收集的数据 -->
           <el-option
             :label="trademark.tmName"
             :value="trademark.id"
@@ -24,11 +26,12 @@
         ></el-input>
       </el-form-item>
 
+      <!-- :file-list="spuImageList"照片墙展示数据的来源 -->
       <el-form-item label="SPU图片">
         <el-upload
           action="/dev-api/admin/product/fileUpload/"
           list-type="picture-card"
-          :file-list="spu.spuImageList"
+          :file-list="spuImageList"
           :on-preview="handlePictureCardPreview"
           :on-remove="handleRemove"
           :on-success="handlerSuccess"
@@ -55,7 +58,11 @@
           ></el-option>
         </el-select>
 
-        <el-button type="primary" icon="el-icon-plus" style="margin-left: 20px"
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          style="margin-left: 20px"
+          @click="addSaleAttr"
           >添加销售属性</el-button
         >
         <el-table
@@ -109,7 +116,11 @@
             align="center"
           >
             <template slot-scope="{ row, $index }">
-              <el-button type="danger" icon="el-icon-delete"></el-button>
+              <el-button
+                type="danger"
+                icon="el-icon-delete"
+                size="mini"
+              ></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -211,8 +222,11 @@ export default {
     //   上传spu图片的方法（照片墙）
     handleRemove(file, fileList) {
       // console.log(file, fileList);
-      this.spu.spuImageList = fileList;
+      // fileList是删除照片之后剩余的照片
+      this.spuImageList = fileList;
     },
+
+    // 照片墙图片预览的回调
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
       this.dialogVisible = true;
@@ -220,7 +234,7 @@ export default {
     // 照片墙图片上传成功的回调
     handlerSuccess(response, file, fileList) {
       // 收集图片的信息
-      this.spu.spuImageList = fileList;
+      this.spuImageList = fileList;
     },
 
     // spu属性值的方法
@@ -297,8 +311,32 @@ export default {
       if (imgRes.code == 200) {
         // this.spu.imgName = imgRes.data.imgName;
         // this.spu.imgUrl = imgRes.data.imgUrl;
-        this.spuImageList = imgRes.data;
+        // this.spuImageList = imgRes.data;
+        // 由于照片墙显示图片的数据的数组里面必须有name和url字段，所以需要把服务器返回的数组进行修改
+        let arr = imgRes.data;
+        arr.forEach((item) => {
+          // 将imgName,imgUrl修改为name和url(其实不是修改，而是新增了name和url这两个属性，原来的imgName和imgUrl还在)
+          item.name = item.imgName;
+          item.url = item.imgUrl;
+        });
+        // 把整理好的数据赋值给spuImageList
+        this.spuImageList = arr;
       }
+    },
+
+    // 点击添加销售属性按钮的回调
+    addSaleAttr() {
+      const [baseSaleAttrId, saleAttrName] = this.attrIdAndAttrName.split(":");
+
+      // 这里是将销售属性列表中的数据直接添加到spu.spuSaleAttrList中
+      let nweSaleAttr = {
+        baseSaleAttrId,
+        saleAttrName,
+        spuSaleAttrValueList: [],
+      };
+
+      // 向spu.spuSaleAttrList中添加新的销售属性
+      this.spu.spuSaleAttrList.push(nweSaleAttr);
     },
 
     // 点击取消按钮的回调
