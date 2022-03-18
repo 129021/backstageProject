@@ -43,3 +43,18 @@ CategorySelect：
 import CategorySelect from '@/components/CategorySelect'
 Vue.component(CategorySelect.name,CategorySelect)
 ```
+
+
+### spu
+添加响应式属性：
+```js
+this.$set(row,'inputVisible',true)
+```
+
+添加响应式属性的三个参数：
+1. 谁要加响应式属性
+2. 响应式属性的名字
+3. 响应式属性的值
+
+
+

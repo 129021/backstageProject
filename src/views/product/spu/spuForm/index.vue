@@ -102,9 +102,21 @@
                 @blur="handleInputConfirm" -->
               <!-- v-if="inputVisible"
                 v-model="inputValue" -->
+              <el-input
+                class="input-new-tag"
+                v-if="row.inputVisible"
+                v-model="row.inputValue"
+                ref="saveTagInput"
+                @blur="handleInputConfirm(row)"
+              ></el-input>
 
               <!-- @click="showInput" -->
-              <el-button class="button-new-tag" size="small" icon="el-icon-plus"
+              <el-button
+                class="button-new-tag"
+                size="small"
+                icon="el-icon-plus"
+                v-else
+                @click="addSaleAttrValue(row)"
                 >添加属性值</el-button
               >
             </template>
@@ -337,6 +349,25 @@ export default {
 
       // 向spu.spuSaleAttrList中添加新的销售属性
       this.spu.spuSaleAttrList.push(nweSaleAttr);
+
+      // 清空数据
+      this.attrIdAndAttrName = "";
+    },
+
+    // 添加属性值按钮失去焦点由input变为button的事件
+    handleInputConfirm(row) {
+      const { baseSaleAttrId, inputValue } = row;
+      // 修改inputVisible为false
+      row.inputVisible = false;
+    },
+
+    // 点击添加属性值按钮的回调
+    addSaleAttrValue(row) {
+      // 挂载在销售属性身上的响应式数据inputVisible,控制着button与input两者的切换
+      this.$set(row, "inputVisible", true);
+
+      // 通过响应式数据inputValue字段收集新增的销售属性值
+      this.$set(row, "inputValue", "");
     },
 
     // 点击取消按钮的回调
