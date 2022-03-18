@@ -1,1 +1,107 @@
 import request from '@/utils/request'
+
+
+// 获取spu列表
+// GET /admin/product/{page}/{limit}
+// params:category3Id
+
+export const reqSpuList = (page, limit, category3Id) => request({
+  url: `/admin/product/${page}/${limit}`,
+  method: 'get',
+  params: {
+    category3Id
+  },
+
+})
+
+
+
+// 获取某个spu的sku列表
+// GET /admin/product/findBySpuId/{spuId}
+export const reqSkuListBySpuId = (spuId) => request({
+  url: `/admin/product/findBySpuId/${spuId}`,
+  method: 'get',
+})
+
+
+// 删除某个spu
+// DELETE /admin/product/deleteSpu/{spuId}
+export const reqDeleteSpu = (spuId) => request({
+  url: `/admin/product/deleteSpu/${spuId}`,
+  method: 'delete',
+
+})
+
+
+// 获取品牌列表
+// GET /admin/product/baseCategoryTrademark/findTrademarkList/{category3Id}
+export const reqTrademark = (category3Id) => request({
+  url: '/admin/product/baseTrademark/getTrademarkList',
+  method: 'get',
+
+})
+
+
+// 获取销售属性列表
+export const reqBaseSaleAttrList = () => request({
+  url: '/admin/product/baseSaleAttrList',
+  method: 'get',
+})
+
+
+
+
+// 通过spu的id获取spu信息
+// GET /admin/product/getSpuById/{spuId}
+export const reqSpu = (spuId) => request({
+    url: `/admin/product/getSpuById/${spuId}`,
+    method: 'get',
+  })
+
+
+
+
+//   获取spu图片的接口
+// GET /admin/product/spuImageList/{spuId}
+// spuId 
+export const reqSpuImageList = (spuId) => request({
+  url: `/admin/product/spuImageList/${spuId}`,
+  method: 'get'
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 添加或者修改SPU
+// POST /admin/product/saveSpuInfo
+// POST /admin/product/updateSpuInfo
+
+export const reqAddOrUpdateSpu = (spuInfo) => {
+  if (spuInfo.id) {
+    return request({
+      url: '/admin/product/updateSpuInfo',
+      method: 'post',
+      data: spuInfo,
+    })
+  } else {
+    return request({
+      url: '/admin/product/saveSpuInfo',
+      method: 'post',
+      data: spuInfo,
+    })
+  }
+
+}
