@@ -49,6 +49,7 @@
                 icon="el-icon-plus"
                 size="mini"
                 title="添加sku"
+                @click="addSku(row)"
               ></el-button>
               <el-button
                 type="warning"
@@ -166,6 +167,8 @@ export default {
       page: 1,
       limit: 3,
       total: 30,
+      category1Id: "",
+      category2Id: "",
       category3Id: "",
       spuList: [],
 
@@ -181,7 +184,15 @@ export default {
   methods: {
     // 获取category3Id
     getCategory({ id, level }) {
-      if (level == 3) {
+      if (level == 1) {
+        this.category1Id = id;
+        // console.log('成功获得1ID');
+
+      } else if (level == 2) {
+        this.category2Id = id;
+        // console.log('成功获得2ID');
+
+      } else {
         this.category3Id = id;
         // console.log('成功获得3ID');
 
@@ -215,6 +226,14 @@ export default {
       this.page = page;
 
       this.getSpuList();
+    },
+
+    // 点击添加sku按钮的回调
+    addSku(row) {
+      const { category1Id, category2Id } = this;
+      this.scene = 2;
+      // 告诉子组件我点击了这个按钮
+      this.$refs.skuForm.addSku(category1Id,category2Id, row);
     },
 
     // 点击“查看当前spu的sku列表”按钮的回调

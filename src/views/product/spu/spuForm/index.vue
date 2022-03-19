@@ -94,6 +94,7 @@
                 v-for="(tag, index) in row.spuSaleAttrValueList"
                 :key="tag.id"
                 :disable-transitions="false"
+                @close="row.spuSaleAttrValueList.splice(index, 1)"
                 >{{ tag.saleAttrValueName }}
               </el-tag>
 
@@ -132,6 +133,7 @@
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
+                @click="spu.spuSaleAttrList.splice($index, 1)"
               ></el-button>
             </template>
           </el-table-column>
@@ -139,7 +141,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="saveOrUpdateSpu">保存</el-button>
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
@@ -147,6 +149,7 @@
 </template>
 
 <script>
+// import { forEach } from 'mock/user';
 export default {
   name: "SpuForm",
   data() {
@@ -249,26 +252,7 @@ export default {
       this.spuImageList = fileList;
     },
 
-    // spu属性值的方法
-    // handleClose(tag) {
-    //   this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1);
-    // },
-
-    // showInput() {
-    //   this.inputVisible = true;
-    //   this.$nextTick((_) => {
-    //     this.$refs.saveTagInput.$refs.input.focus();
-    //   });
-    // },
-
-    // handleInputConfirm() {
-    //   let inputValue = this.inputValue;
-    //   if (inputValue) {
-    //     this.dynamicTags.push(inputValue);
-    //   }
-    //   this.inputVisible = false;
-    //   this.inputValue = "";
-    // },
+   
 
     // 点击添加spu按钮（在第一个状态上）的回调
     async addSpu(category3Id) {
@@ -357,7 +341,21 @@ export default {
     // 添加属性值按钮失去焦点由input变为button的事件
     handleInputConfirm(row) {
       const { baseSaleAttrId, inputValue } = row;
+
+      // 新增的销售属性值不能为空
+      if (inputValue.trim() == "") {
+        this.$message("属性值不能为空");
+        return;
+      }
+
+      // 属性值不能重复
+      let result = row.spuSaleAttrValueList.every(
+        (item) => item.saleAttrValueName != inputValue
+      );
+      if (!result) return;
+      let newsaleAttrValue = { baseSaleAttrId, saleAttrValueName: inputValue };
       // 修改inputVisible为false
+      row.spuSaleAttrValueList.push(newsaleAttrValue);
       row.inputVisible = false;
     },
 
@@ -368,6 +366,35 @@ export default {
 
       // 通过响应式数据inputValue字段收集新增的销售属性值
       this.$set(row, "inputValue", "");
+    },
+
+    // 点击保存按钮的回调
+    async saveOrUpdateSpu() {
+      this.spu.spuImageList = this.spuImageList.map((item) => {
+        return {
+          id: item.id,
+          imgName: item.name,
+          imgUrl: (item.response && item.response.data) || item.url,
+          spuId: item.spuId,
+        };
+      });
+      // 发请求提交
+      let res = await this.$API.spu.reqSaveOrUpdateSpu(this.spu);
+      // console.log(res);
+      if (res.code == 200) {
+        this.$message({ type: "success", message: "保存成功" });
+        // 清除数据
+        // 清除数据
+        Object.assign(this._data, this.$options.data());
+
+        // 回到父组件
+        this.$emit("changeScene", {
+          scene: 0,
+          flag: this.spu.id ? "modify" : "add",
+        });
+      } else {
+        this.$message.error("保存失败");
+      }
     },
 
     // 点击取消按钮的回调

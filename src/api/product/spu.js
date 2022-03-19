@@ -54,9 +54,9 @@ export const reqBaseSaleAttrList = () => request({
 // 通过spu的id获取spu信息
 // GET /admin/product/getSpuById/{spuId}
 export const reqSpu = (spuId) => request({
-    url: `/admin/product/getSpuById/${spuId}`,
-    method: 'get',
-  })
+  url: `/admin/product/getSpuById/${spuId}`,
+  method: 'get',
+})
 
 
 
@@ -72,9 +72,26 @@ export const reqSpuImageList = (spuId) => request({
 
 
 
+// 保存或者修改spuForm的接口
+// POST /admin/product/saveSpuInfo
 
+// POST /admin/product/updateSpuInfo
 
-
+export const reqSaveOrUpdateSpu = (spu) => {
+  if (spu.id) {
+    return request({
+      url: "/admin/product/updateSpuInfo",
+      method: "post",
+      data: spu,
+    })
+  } else {
+    return request({
+      url: '/admin/product/saveSpuInfo',
+      method: 'post',
+      data: spu,
+    })
+  }
+}
 
 
 
@@ -105,3 +122,33 @@ export const reqAddOrUpdateSpu = (spuInfo) => {
   }
 
 }
+
+
+
+
+// 获取图片的接口
+// /admin/product/spuImageList/{spuId}
+// get 
+export const reqSkuImageList = (spuId) => request({
+  url: `/admin/product/spuImageList/${spuId}`,
+  method: 'get',
+})
+
+
+
+
+// 获取销售属性的接口
+// /admin/product/spuSaleAttrList/{spuId} get
+export const reqSpuSaleAttrList = (spuId) => request({
+  url: `/admin/product/spuSaleAttrList/${spuId}`,
+  method: 'get',
+})
+
+
+
+// 获取平台属性的数据
+// /admin/product/attrInfoList/{category1Id}/{category2Id}/{category3Id} get
+export const reqAttrInfoList = (category1Id, category2Id, category3Id) => request({
+  url: `/admin/product/attrInfoList/${category1Id}/${category2Id}/${category3Id}`,
+  method: 'get',
+})
