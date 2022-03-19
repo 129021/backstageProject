@@ -23,28 +23,55 @@
 
       <el-form-item label="平台属性">
         <el-form ref="form" :inline="true" label-width="80px">
-          <el-form-item label="label">
-            <el-select placeholder="请选择" value="">
-              <el-option label="label" value="value"></el-option>
+          <el-form-item
+            :label="attr.attrName"
+            v-for="(attr, index) in skuAttrValueList"
+            :key="attr.id"
+            style="margin-bottom: 10px"
+          >
+            <el-select placeholder="请选择" v-model="attr.attrIdAndValueId">
+              <el-option
+                :label="attrValue.valueName"
+                :value="`${attr.id}:${attrValue.id}`"
+                v-for="(attrValue, index) in attr.attrValueList"
+                :key="attrValue.id"
+              ></el-option>
             </el-select>
           </el-form-item>
-
-   
         </el-form>
       </el-form-item>
 
       <el-form-item label="销售属性">
         <el-form ref="form" :inline="true" label-width="80px">
-          <el-form-item label="label">
-            <el-select placeholder="请选择" value="">
-              <el-option label="label" value="value"></el-option>
+          <el-form-item
+            :label="saleAttr.saleAttrName"
+            v-for="(saleAttr, index) in skuSaleAttrValueList"
+            :key="saleAttr.id"
+          >
+            <el-select
+              placeholder="请选择"
+              style="margin-bottom: 10px"
+              v-model="saleAttr.attrIdAndValueId"
+            >
+              <el-option
+                :label="attrValue.saleAttrValueName"
+                :value="`${saleAttr.id}:${attrValue.id}`"
+                v-for="(attrValue, index) in saleAttr.spuSaleAttrValueList"
+                :key="attrValue.id"
+              ></el-option>
             </el-select>
           </el-form-item>
         </el-form>
       </el-form-item>
 
       <el-form-item label="图片列表">
-        <el-table border style="width: 100%">
+        <el-table
+          border
+          style="width: 100%"
+          :data="skuImageList"
+          ref="multipleTable"
+          @selection-change="handleSelectionChange"
+        >
           <el-table-column type="selection" width="80" align="center">
           </el-table-column>
 
@@ -55,12 +82,16 @@
             align="center"
           >
             <template slot-scope="{ row, $index }">
-              <img src="" alt="" />
+              <img
+                :src="row.imgUrl"
+                alt=""
+                style="width: 100px; height: 100px"
+              />
             </template>
           </el-table-column>
 
           <el-table-column
-            prop="prop"
+            prop="imgName"
             label="名称"
             width="width"
             align="center"
@@ -73,16 +104,21 @@
             align="center"
           >
             <template slot-scope="{ row, $index }">
-              <el-button type="primary">设为默认</el-button>
-              <el-button>默认</el-button>
+              <el-button
+                type="primary"
+                @click="defaultImg(row)"
+                v-if="row.isDefault == 0"
+                >设为默认</el-button
+              >
+              <el-button v-else>默认</el-button>
             </template>
           </el-table-column>
         </el-table>
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary">保存</el-button>
-        <el-button>取消</el-button>
+        <el-button type="primary" @click="saveSku">保存</el-button>
+        <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -152,6 +188,12 @@ export default {
 
       // 平台属性
       skuAttrValueList: [],
+
+      // 暂时存放平台属性id和属性值id的地方
+      attrIdAndValueId: "",
+
+      // 存放选择的图片
+      imgList: [],
     };
   },
   methods: {
@@ -186,7 +228,7 @@ export default {
       // 获取销售属性
 
       let saleAttrRes = await this.$API.spu.reqSpuSaleAttrList(row.id);
-      // console.log(saleAttrRes);
+      console.log(saleAttrRes);
       if (saleAttrRes.code == 200) {
         this.skuSaleAttrValueList = saleAttrRes.data;
       }
@@ -201,6 +243,85 @@ export default {
       if (attrRes.code == 200) {
         this.skuAttrValueList = attrRes.data;
       }
+    },
+
+    // 设为默认图片按钮的回调
+    defaultImg(row) {
+      this.skuImageList.forEach((item) => {
+        item.isDefault = 0;
+      });
+      row.isDefault = 1;
+      this.$refs.multipleTable.toggleRowSelection(row);
+    },
+
+    // 图片选择框的回调
+    handleSelectionChange(params) {
+      console.log(params);
+      this.imgList = params;
+    },
+
+    // 保存按钮的回调
+    async saveSku() {
+      // 整理数据
+      // 图片数据的整理
+      this.skuInfo.skuImageList = this.imgList.map((item) => {
+        return {
+          imgName: item.imgName,
+          imgUrl: item.imgUrl,
+          isDefault: item.isDefault,
+
+          spuImgId: item.spuId,
+        };
+      });
+
+      this.skuInfo.skuAttrValueList = this.skuAttrValueList.reduce(
+        (prev, item) => {
+          if (item.attrIdAndValueId) {
+            const [attrId, valueId] = item.attrIdAndValueId.split(":");
+            prev.push({ attrId, valueId });
+          }
+          return prev;
+        },
+        []
+      );
+
+      //  整理销售属性
+      this.skuInfo.skuSaleAttrValueList = this.skuSaleAttrValueList.reduce(
+        (prev, item) => {
+          if (item.attrIdAndValueId) {
+            const [saleAttrId, saleAttrValueId] =
+              item.attrIdAndValueId.split(":");
+            prev.push({ saleAttrId, saleAttrValueId });
+          }
+          return prev;
+        },
+        []
+      );
+
+      // 发请求
+      let res = await this.$API.spu.reqAddSku(this.skuInfo);
+      console.log(res);
+      if (res.code == 200) {
+        this.$message({ type: "success", message: "保存成功" });
+
+        this.$emit("changeScene", { scene: 0, flag: "" });
+
+        //  清空数据
+        Object.assign(this._data, this.$options.data());
+      } else {
+        this.$message.error("保存失败");
+      }
+    },
+
+    // 取消按钮的回调
+
+    cancel() {
+      // 回到场景1
+      this.$emit("changeScene", { scene: 0, flag: "" });
+
+      // 清空数据
+      //  清空数据
+      Object.assign(this._data, this.$options.data());
     },
   },
 };

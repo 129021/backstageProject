@@ -110,7 +110,11 @@
 
       <!-- 场景三：添加sku -->
       <!-- SkuForm -->
-      <SkuForm v-show="scene == 2" ref="skuForm"></SkuForm>
+      <SkuForm
+        v-show="scene == 2"
+        ref="skuForm"
+        @changeScene="changeScene"
+      ></SkuForm>
     </el-card>
 
     <!-- 点击查看当前spu的sku列表弹出的dialog对话框结构 -->
@@ -187,11 +191,9 @@ export default {
       if (level == 1) {
         this.category1Id = id;
         // console.log('成功获得1ID');
-
       } else if (level == 2) {
         this.category2Id = id;
         // console.log('成功获得2ID');
-
       } else {
         this.category3Id = id;
         // console.log('成功获得3ID');
@@ -233,7 +235,7 @@ export default {
       const { category1Id, category2Id } = this;
       this.scene = 2;
       // 告诉子组件我点击了这个按钮
-      this.$refs.skuForm.addSku(category1Id,category2Id, row);
+      this.$refs.skuForm.addSku(category1Id, category2Id, row);
     },
 
     // 点击“查看当前spu的sku列表”按钮的回调
